@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: smm_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: smm_panel
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smm_backend
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      MONGODB_URI: mongodb://mongodb:27017/smm_panel
+      JWT_SECRET: change_this_in_production
+      JWT_EXPIRES_IN: 7d
+      FRONTEND_URL: http://localhost:3000
+      NODE_ENV: development
+      # Add your Stripe and SMM API keys here
+      STRIPE_SECRET_KEY: sk_test_xxxx
+      STRIPE_WEBHOOK_SECRET: whsec_xxxx
+      SMM_API_URL: https://smmstone.com/api/v2
+      SMM_API_KEY: your_key
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend/logs:/app/logs
+
+volumes:
+  mongo_data:
