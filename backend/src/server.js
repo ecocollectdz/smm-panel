@@ -18,6 +18,8 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // Ensure logs directory exists
 const logsDir = path.join(__dirname, '../logs');
 if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
@@ -141,7 +143,8 @@ app.listen(PORT, () => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received. Shutting down gracefully...');
-  mongoose.connection.close(() => process.exit(0));
+  mongoose.connection.close().then(() => process.exit(0));
 });
+
 
 module.exports = app;
